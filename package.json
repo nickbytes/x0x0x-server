@@ -1,0 +1,29 @@
+{
+  "name": "x0x0x",
+  "version": "1.0.0",
+  "description": "federated link sharing",
+  "private": true,
+  "engines": {
+    "node": "~4.x.x",
+    "npm": "2.x.x"
+  },
+  "scripts": {
+    "start": "nodemon index.js",
+    "build": "browserify public/js/main.js > public/bundle.js"
+  },
+  "dependencies": {
+    "bufferutil": "^1.2.1",
+    "client-request": "^1.1.0",
+    "express": "^4.14.0",
+    "fingerprintjs": "^0.5.3",
+    "level": "^1.5.0",
+    "level-ttl": "^3.1.1",
+    "localforage": "^1.4.3",
+    "utf-8-validate": "^1.2.1",
+    "uuid": "^2.0.3",
+    "ws": "^1.1.1"
+  },
+  "devDependencies": {
+    "standard": "^8.5.0"
+  }
+}

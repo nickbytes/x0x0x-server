@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>x0x0x</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width, height=device-height, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="notify"></div>
+      <h2>Share a link</h2>
+      <p id="title"></p>
+      <form id="form-item">
+        <input type="text" name="url" placeholder="URL (required)" required>
+        <input type="text" name="description" placeholder="description (optional)">
+        <input type="checkbox" name="ttl">Delete link after 24 hours
+        <button id="item-add">add</button>
+      </form>
+
+      <h2>Saved</h2>
+      <ul id="items"></ul>
+      <form id="form-network">
+        <input type="text" name="network-url" placeholder="Network URL (required)" required>
+        <button id="network-add">add</button>
+      </form>
+
+      <h2>Feed</h2>
+      <ul id="feed"></ul>
+
+      <h2>Connected networks</h2>
+      <ul id="network"></ul>
+    </div>
+    <script src="/bundle.js"></script>
+  </body>
+</html>
