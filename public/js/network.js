@@ -1,35 +1,48 @@
 'use strict'
 
-const db = require('localforage')
+var db = require('localforage')
 
-let network = {}
-let networkList = document.querySelector('#network')
-let networkAdd = document.querySelector('#network-add')
-let notification = document.querySelector('#notify')
+var notify = require('./notify')
 
-function notify(msg) {
-  notification.classList.remove('error')
+var network = {}
+var networkList = document.querySelector('#network')
+var networkAdd = document.querySelector('#network-add')
 
-  if (msg.error) {
-    notification.classList.add('error')
-    notification.textContent = msg.error
-  } else {
-    notification.textContent = msg.notice
-  }
+function remove(host) {
+  delete network[host]
+
+  var msg = {}
+
+  db.setItem('network', network, function (err) {
+    if (err) {
+      msg.error = err
+    } else {
+      msg.notice = host
+      redraw()
+    }
+    notify(msg)
+  })
 }
 
 function redraw() {
   networkList.innerHTML = ''
   for (var k in network) {
-    let n = document.createElement('li')
+    var n = document.createElement('li')
     n.textContent = k
     n.id = 'network-' + k.replace(/^\w+/gi, '')
+    var btn = document.createElement('button')
+    btn.textContent = 'x'
+    btn.onclick = function (ev) {
+      ev.preventDefault()
+      remove(k)
+    }
+    n.appendChild(btn)
     networkList.appendChild(n)
   }
 }
 
 exports.add = function (host) {
-  let msg = {}
+  var msg = {}
 
   if (!host.match(/^http/)) {
     msg.error = 'Invalid URL for host'
@@ -37,7 +50,7 @@ exports.add = function (host) {
     return
   }
 
-  db.getItem('network', (err, n) => {
+  db.getItem('network', function (err, n) {
     if (!err && n) {
       network = n
     } else {
@@ -47,7 +60,7 @@ exports.add = function (host) {
     host = host.replace(/\/$/, '')
     network[host] = new Date().getTime()
 
-    db.setItem('network', network, (err) => {
+    db.setItem('network', network, function (err) {
       if (err) {
         msg.error = 'Could not save host: ' + err
       } else {
@@ -59,28 +72,16 @@ exports.add = function (host) {
   })
 }
 
-exports.remove = function (host) {
-  delete network[host]
-
-  let msg = {}
-
-  db.setItem(host, (err) => {
-    if (err) {
-      msg.error = err
-    } else {
-      msg.notice = host
-    }
-
-    redraw()
-  })
-}
-
-exports.list = function () {
-  db.getItem('network', (err, n) => {
+exports.list = function (shallow, next) {
+  db.getItem('network', function (err, n) {
     if (!err && n) {
       network = n
     }
 
-    redraw()
+    if (shallow && next) {
+      next(null, network)
+    } else {
+      redraw()
+    }
   })
 }

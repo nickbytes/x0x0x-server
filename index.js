@@ -6,6 +6,8 @@ const path = require('path')
 const express = require('express')
 let app = express()
 
+const item = require('./src/item')
+
 app.use(express.static(path.join(__dirname, '/public')))
 
 const server = http.createServer(app)
@@ -21,7 +23,8 @@ wss.on('connection', (ws) => {
 
     switch (data.type) {
       case 'item.add':
-        console.log('got here ', data.value)
+        console.log('got here ', data)
+        item.add(data)
         break
       case 'item.save':
 

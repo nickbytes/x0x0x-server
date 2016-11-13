@@ -1,22 +1,47 @@
 'use strict'
 
-exports.add = function (inputs, ws) {
-  let data = {}
+var notify = require('./notify')
+var network = require('./network')
 
-  for (let i = 0; i < inputs.length; i++) {
-    if (inputs[i].type === 'checkbox') {
-      if (inputs[i].checked) {
-        inputs[i].value = true
-      } else {
-        inputs[i].value = false
-      }
+exports.add = function (inputs, ws) {
+  var data = {}
+  var msg = {}
+
+  for (var i = 0; i < inputs.length; i++) {
+    var update = false
+    switch (inputs[i].name) {
+      case 'ttl':
+        if (inputs[i].checked) {
+          inputs[i].value = true
+        } else {
+          inputs[i].value = false
+        }
+        update = true
+        break
+      case 'url':
+        if (inputs[i].value.match(/^http/)) {
+          update = true
+        } else {
+          msg.error = 'Cannot add `' + inputs[i].value + '`\n' +
+                      'Invalid URL format'
+          notify(msg)
+        }
+        break
+      default:
+        update = true
+        break
     }
 
-    data[inputs[i].name] = inputs[i].value
+    if (update) {
+      data[inputs[i].name] = inputs[i].value
+    }
   }
 
-  ws.send(JSON.stringify({
-    type: 'item.add',
-    value: data
-  }))
+  network.list(true, function (_, hosts) {
+    ws.send(JSON.stringify({
+      type: 'item.add',
+      value: data,
+      hosts: hosts
+    }))
+  })
 }

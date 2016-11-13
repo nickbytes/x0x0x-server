@@ -2305,47 +2305,91 @@ module.exports = localforage_js;
 },{}],2:[function(require,module,exports){
 'use strict'
 
-exports.add = function (inputs, ws) {
-  let data = {}
+var notify = require('./notify')
+var network = require('./network')
 
-  for (let i = 0; i < inputs.length; i++) {
-    if (inputs[i].type === 'checkbox') {
-      if (inputs[i].checked) {
-        inputs[i].value = true
-      } else {
-        inputs[i].value = false
-      }
+exports.add = function (inputs, ws) {
+  var data = {}
+  var msg = {}
+
+  for (var i = 0; i < inputs.length; i++) {
+    var update = false
+    switch (inputs[i].name) {
+      case 'ttl':
+        if (inputs[i].checked) {
+          inputs[i].value = true
+        } else {
+          inputs[i].value = false
+        }
+        update = true
+        break
+      case 'url':
+        if (inputs[i].value.match(/^http/)) {
+          update = true
+        } else {
+          msg.error = 'Cannot add `' + inputs[i].value + '`\n' +
+                      'Invalid URL format'
+          notify(msg)
+        }
+        break
+      default:
+        update = true
+        break
     }
 
-    data[inputs[i].name] = inputs[i].value
+    if (update) {
+      data[inputs[i].name] = inputs[i].value
+    }
   }
 
-  ws.send(JSON.stringify({
-    type: 'item.add',
-    value: data
-  }))
+  network.list(true, function (_, hosts) {
+    ws.send(JSON.stringify({
+      type: 'item.add',
+      value: data,
+      hosts: hosts
+    }))
+  })
 }
 
-},{}],3:[function(require,module,exports){
+},{"./network":4,"./notify":5}],3:[function(require,module,exports){
 'use strict'
 
-const item = require('./item')
-const network = require('./network')
+var item = require('./item')
+var network = require('./network')
 
-const protocol = window.document.location.protocol
-const port = window.document.location.port ? ':' + window.document.location.port : ''
-const host = window.document.location.host.replace(/:.*/, '')
+var protocol = window.document.location.protocol
+var port = window.document.location.port ? ':' + window.document.location.port : ''
+var host = window.document.location.host.replace(/:.*/, '')
 
-const ws = new window.WebSocket('ws' + (protocol === 'https' ? 's' : '') + '://' + host + port)
-const formItem = document.querySelector('#form-item')
-const formNetwork = document.querySelector('#form-network')
+var formItem = document.querySelector('#form-item')
+var formNetwork = document.querySelector('#form-network')
+var reconnectInterval = 1000 * 60
+
+var ws
+
+var connect = function () {
+  ws = new window.WebSocket('ws' + (protocol === 'https' ? 's' : '') + '://' + host + port)
+  ws.onerror = ws.onclose = function () {
+    window.setTimeout(connect, reconnectInterval)
+  }
+  ws.onmessage = function (data) {
+    data = JSON.parse(data)
+    switch (data.type) {
+      case 'item.add':
+        console.log('item added ', data)
+        break
+      default:
+        break
+    }
+  }
+}
 
 network.list()
 
 formItem.onsubmit = function (ev) {
   ev.preventDefault()
 
-  let inputs = this.querySelectorAll('input')
+  var inputs = this.querySelectorAll('input')
   item.add(inputs, ws)
 }
 
@@ -2355,39 +2399,54 @@ formNetwork.onsubmit = function (ev) {
   network.add(formNetwork.querySelector('input').value)
 }
 
+connect()
+
 },{"./item":2,"./network":4}],4:[function(require,module,exports){
 'use strict'
 
-const db = require('localforage')
+var db = require('localforage')
 
-let network = {}
-let networkList = document.querySelector('#network')
-let networkAdd = document.querySelector('#network-add')
-let notification = document.querySelector('#notify')
+var notify = require('./notify')
 
-function notify(msg) {
-  notification.classList.remove('error')
+var network = {}
+var networkList = document.querySelector('#network')
+var networkAdd = document.querySelector('#network-add')
 
-  if (msg.error) {
-    notification.classList.add('error')
-    notification.textContent = msg.error
-  } else {
-    notification.textContent = msg.notice
-  }
+function remove(host) {
+  delete network[host]
+
+  var msg = {}
+
+  db.setItem('network', network, function (err) {
+    if (err) {
+      msg.error = err
+    } else {
+      msg.notice = host
+      redraw()
+    }
+    notify(msg)
+  })
 }
 
 function redraw() {
   networkList.innerHTML = ''
   for (var k in network) {
-    let n = document.createElement('li')
+    var n = document.createElement('li')
     n.textContent = k
     n.id = 'network-' + k.replace(/^\w+/gi, '')
+    var btn = document.createElement('button')
+    btn.textContent = 'x'
+    btn.onclick = function (ev) {
+      ev.preventDefault()
+      remove(k)
+    }
+    n.appendChild(btn)
     networkList.appendChild(n)
   }
 }
 
 exports.add = function (host) {
-  let msg = {}
+  var msg = {}
 
   if (!host.match(/^http/)) {
     msg.error = 'Invalid URL for host'
@@ -2395,7 +2454,7 @@ exports.add = function (host) {
     return
   }
 
-  db.getItem('network', (err, n) => {
+  db.getItem('network', function (err, n) {
     if (!err && n) {
       network = n
     } else {
@@ -2405,7 +2464,7 @@ exports.add = function (host) {
     host = host.replace(/\/$/, '')
     network[host] = new Date().getTime()
 
-    db.setItem('network', network, (err) => {
+    db.setItem('network', network, function (err) {
       if (err) {
         msg.error = 'Could not save host: ' + err
       } else {
@@ -2417,30 +2476,36 @@ exports.add = function (host) {
   })
 }
 
-exports.remove = function (host) {
-  delete network[host]
-
-  let msg = {}
-
-  db.setItem(host, (err) => {
-    if (err) {
-      msg.error = err
-    } else {
-      msg.notice = host
-    }
-
-    redraw()
-  })
-}
-
-exports.list = function () {
-  db.getItem('network', (err, n) => {
+exports.list = function (shallow, next) {
+  db.getItem('network', function (err, n) {
     if (!err && n) {
       network = n
     }
 
-    redraw()
+    if (shallow && next) {
+      next(null, network)
+    } else {
+      redraw()
+    }
   })
 }
 
-},{"localforage":1}]},{},[3]);
+},{"./notify":5,"localforage":1}],5:[function(require,module,exports){
+'use strict'
+
+var notification = document.querySelector('#notify')
+
+module.exports = function (msg) {
+  notification.classList.remove('error')
+
+  if (msg.error) {
+    notification.classList.add('error')
+    notification.textContent = msg.error
+  } else if (msg.notice) {
+    notification.textContent = msg.notice
+  } else {
+    notification.textContent = ''
+  }
+}
+
+},{}]},{},[3]);

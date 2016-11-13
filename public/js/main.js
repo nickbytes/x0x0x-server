@@ -1,22 +1,41 @@
 'use strict'
 
-const item = require('./item')
-const network = require('./network')
+var item = require('./item')
+var network = require('./network')
 
-const protocol = window.document.location.protocol
-const port = window.document.location.port ? ':' + window.document.location.port : ''
-const host = window.document.location.host.replace(/:.*/, '')
+var protocol = window.document.location.protocol
+var port = window.document.location.port ? ':' + window.document.location.port : ''
+var host = window.document.location.host.replace(/:.*/, '')
 
-const ws = new window.WebSocket('ws' + (protocol === 'https' ? 's' : '') + '://' + host + port)
-const formItem = document.querySelector('#form-item')
-const formNetwork = document.querySelector('#form-network')
+var formItem = document.querySelector('#form-item')
+var formNetwork = document.querySelector('#form-network')
+var reconnectInterval = 1000 * 60
+
+var ws
+
+var connect = function () {
+  ws = new window.WebSocket('ws' + (protocol === 'https' ? 's' : '') + '://' + host + port)
+  ws.onerror = ws.onclose = function () {
+    window.setTimeout(connect, reconnectInterval)
+  }
+  ws.onmessage = function (data) {
+    data = JSON.parse(data)
+    switch (data.type) {
+      case 'item.add':
+        console.log('item added ', data)
+        break
+      default:
+        break
+    }
+  }
+}
 
 network.list()
 
 formItem.onsubmit = function (ev) {
   ev.preventDefault()
 
-  let inputs = this.querySelectorAll('input')
+  var inputs = this.querySelectorAll('input')
   item.add(inputs, ws)
 }
 
@@ -25,3 +44,5 @@ formNetwork.onsubmit = function (ev) {
 
   network.add(formNetwork.querySelector('input').value)
 }
+
+connect()
