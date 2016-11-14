@@ -3,6 +3,8 @@
 var notify = require('./notify')
 var network = require('./network')
 
+var feed = document.querySelector('#feed')
+
 exports.add = function (inputs, ws) {
   var data = {}
   var msg = {}
@@ -44,4 +46,28 @@ exports.add = function (inputs, ws) {
       hosts: hosts
     }))
   })
+}
+
+exports.display = function (result) {
+  switch (result.type) {
+    case 'item.add':
+      console.log('item added ', result)
+      break
+    case 'item.feed':
+      var li = document.createElement('li')
+      var h3 = document.createElement('h3')
+      h3.textContent = result.title || result.value.url
+      var p = document.createElement('p')
+      p.classList.add('description')
+      p.textContent = result.value.description
+      var a = document.createElement('a')
+      a.href = a.textContent = result.value.url
+      li.appendChild(h3)
+      li.appendChild(p)
+      li.appendChild(a)
+      feed.appendChild(li)
+      break
+    default:
+      break
+  }
 }

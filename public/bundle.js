@@ -2308,6 +2308,8 @@ module.exports = localforage_js;
 var notify = require('./notify')
 var network = require('./network')
 
+var feed = document.querySelector('#feed')
+
 exports.add = function (inputs, ws) {
   var data = {}
   var msg = {}
@@ -2351,6 +2353,30 @@ exports.add = function (inputs, ws) {
   })
 }
 
+exports.display = function (result) {
+  switch (result.type) {
+    case 'item.add':
+      console.log('item added ', result)
+      break
+    case 'item.feed':
+      var li = document.createElement('li')
+      var h3 = document.createElement('h3')
+      h3.textContent = result.title || result.value.url
+      var p = document.createElement('p')
+      p.classList.add('description')
+      p.textContent = result.value.description
+      var a = document.createElement('a')
+      a.href = a.textContent = result.value.url
+      li.appendChild(h3)
+      li.appendChild(p)
+      li.appendChild(a)
+      feed.appendChild(li)
+      break
+    default:
+      break
+  }
+}
+
 },{"./network":4,"./notify":5}],3:[function(require,module,exports){
 'use strict'
 
@@ -2373,14 +2399,7 @@ var connect = function () {
     window.setTimeout(connect, reconnectInterval)
   }
   ws.onmessage = function (data) {
-    data = JSON.parse(data)
-    switch (data.type) {
-      case 'item.add':
-        console.log('item added ', data)
-        break
-      default:
-        break
-    }
+    item.display(JSON.parse(data.data))
   }
 }
 

@@ -17,14 +17,22 @@ const wss = new WebSocketServer({
   server: server
 })
 
+function broadcast (data) {
+  wss.clients.forEach(function each (client) {
+    client.send(JSON.stringify(data))
+  })
+}
+
 wss.on('connection', (ws) => {
   ws.on('message', (data) => {
     data = JSON.parse(data)
 
     switch (data.type) {
       case 'item.add':
-        console.log('got here ', data)
         item.add(data)
+        break
+      case 'item.feed':
+        broadcast(data)
         break
       case 'item.save':
 

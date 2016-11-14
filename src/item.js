@@ -19,31 +19,29 @@ exports.add = function (item) {
       if (!err) {
         let $ = cheerio.load(body.toString())
         title = $('title').text()
-        console.log(title)
       } else {
         console.log('Error ', err)
         return
       }
 
       let linkArr = link.split('://')
-
       let ws = new WebSocket('ws' + (linkArr[0] === 'https' ? 's' : '') + '://' + linkArr[1])
 
       ws.on('open', () => {
-        ws.send('message', JSON.stringify({
-          type: 'item.add',
+        ws.send(JSON.stringify({
+          type: 'item.feed',
           title: title,
           value: item.value
         }))
       })
     })
   }
-  console.log('++++++++ ', item)
+
   if (Object.keys(item.hosts).length < 1) {
     console.log('No hosts provided')
   } else {
     for (let k in item.hosts) {
-      getReq(k, item)
+      getReq(k)
     }
   }
 }

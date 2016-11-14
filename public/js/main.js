@@ -19,14 +19,7 @@ var connect = function () {
     window.setTimeout(connect, reconnectInterval)
   }
   ws.onmessage = function (data) {
-    data = JSON.parse(data)
-    switch (data.type) {
-      case 'item.add':
-        console.log('item added ', data)
-        break
-      default:
-        break
-    }
+    item.display(JSON.parse(data.data))
   }
 }
 
