@@ -2327,6 +2327,7 @@ exports.add = function (inputs, ws) {
         break
       case 'url':
         if (inputs[i].value.match(/^http/)) {
+          inputs[i].value = inputs[i].value.replace(/\/$/, '')
           update = true
         } else {
           msg.error = 'Cannot add `' + inputs[i].value + '`\n' +
@@ -2341,6 +2342,10 @@ exports.add = function (inputs, ws) {
 
     if (update) {
       data[inputs[i].name] = inputs[i].value
+      inputs[i].value = ''
+      inputs[i].checked = ''
+    } else {
+      return
     }
   }
 
@@ -2359,18 +2364,21 @@ exports.display = function (result) {
       console.log('item added ', result)
       break
     case 'item.feed':
-      var li = document.createElement('li')
-      var h3 = document.createElement('h3')
-      h3.textContent = result.title || result.value.url
-      var p = document.createElement('p')
-      p.classList.add('description')
-      p.textContent = result.value.description
-      var a = document.createElement('a')
-      a.href = a.textContent = result.value.url
-      li.appendChild(h3)
-      li.appendChild(p)
-      li.appendChild(a)
-      feed.appendChild(li)
+      result = result.value
+      result.forEach((r) => {
+        var li = document.createElement('li')
+        var h3 = document.createElement('h3')
+        h3.textContent = r.title || r.url
+        var p = document.createElement('p')
+        p.classList.add('description')
+        p.textContent = r.description
+        var a = document.createElement('a')
+        a.href = a.textContent = r.url
+        li.appendChild(h3)
+        li.appendChild(p)
+        li.appendChild(a)
+        feed.appendChild(li)
+      })
       break
     default:
       break
@@ -2389,14 +2397,14 @@ var host = window.document.location.host.replace(/:.*/, '')
 
 var formItem = document.querySelector('#form-item')
 var formNetwork = document.querySelector('#form-network')
-var reconnectInterval = 1000 * 60
+var reconnectInterval = 1000
 
 var ws
 
-var connect = function () {
+var reconnect = function () {
   ws = new window.WebSocket('ws' + (protocol === 'https' ? 's' : '') + '://' + host + port)
-  ws.onerror = ws.onclose = function () {
-    window.setTimeout(connect, reconnectInterval)
+  ws.onerror = function () {
+    window.setTimeout(reconnect, reconnectInterval)
   }
   ws.onmessage = function (data) {
     item.display(JSON.parse(data.data))
@@ -2418,7 +2426,7 @@ formNetwork.onsubmit = function (ev) {
   network.add(formNetwork.querySelector('input').value)
 }
 
-connect()
+reconnect()
 
 },{"./item":2,"./network":4}],4:[function(require,module,exports){
 'use strict'

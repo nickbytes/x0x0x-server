@@ -5,6 +5,7 @@ const db = dbs.register('items')
 const request = require('client-request')
 const cheerio = require('cheerio')
 const WebSocket = require('ws')
+const concat = require('concat-stream')
 
 exports.add = function (item) {
   function getReq (link) {
@@ -26,12 +27,24 @@ exports.add = function (item) {
 
       let linkArr = link.split('://')
       let ws = new WebSocket('ws' + (linkArr[0] === 'https' ? 's' : '') + '://' + linkArr[1])
+      let created = new Date().getTime()
+
+      db.put('link~' + created + '~' + link, {
+        title: title || link,
+        description: item.value.description,
+        url: item.value.url,
+        created: created
+      }, (err) => {
+        if (err) {
+          console.log('Could not save link: ', err)
+        }
+      })
 
       ws.on('open', () => {
         ws.send(JSON.stringify({
           type: 'item.feed',
           title: title,
-          value: item.value
+          value: [item.value]
         }))
       })
     })
@@ -44,4 +57,26 @@ exports.add = function (item) {
       getReq(k)
     }
   }
+}
+
+exports.list = function (ws) {
+  let rs = db.createValueStream({
+    gte: 'link~',
+    lte: 'link~\xff',
+    reverse: true,
+    limit: 50
+  })
+
+  rs.pipe(concat((items) => {
+    let opts = {
+      type: 'item.feed',
+      value: items
+    }
+
+    ws.send(JSON.stringify(opts))
+  }))
+
+  rs.on('error', (err) => {
+    console.log('Link retrieval error ', err)
+  })
 }

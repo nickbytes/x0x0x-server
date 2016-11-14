@@ -9,14 +9,14 @@ var host = window.document.location.host.replace(/:.*/, '')
 
 var formItem = document.querySelector('#form-item')
 var formNetwork = document.querySelector('#form-network')
-var reconnectInterval = 1000 * 60
+var reconnectInterval = 1000
 
 var ws
 
-var connect = function () {
+var reconnect = function () {
   ws = new window.WebSocket('ws' + (protocol === 'https' ? 's' : '') + '://' + host + port)
-  ws.onerror = ws.onclose = function () {
-    window.setTimeout(connect, reconnectInterval)
+  ws.onerror = function () {
+    window.setTimeout(reconnect, reconnectInterval)
   }
   ws.onmessage = function (data) {
     item.display(JSON.parse(data.data))
@@ -38,4 +38,4 @@ formNetwork.onsubmit = function (ev) {
   network.add(formNetwork.querySelector('input').value)
 }
 
-connect()
+reconnect()

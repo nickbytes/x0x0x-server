@@ -17,6 +17,7 @@
         <input type="text" name="url" placeholder="URL (required)" required>
         <input type="text" name="description" placeholder="description (optional)">
         <input type="checkbox" name="ttl">Delete link after 24 hours
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <button id="item-add">add</button>
       </form>
 
@@ -24,6 +25,7 @@
       <ul id="items"></ul>
       <form id="form-network">
         <input type="text" name="network-url" placeholder="Network URL (required)" required>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <button id="network-add">add</button>
       </form>
 
