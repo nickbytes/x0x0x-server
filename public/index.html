@@ -11,29 +11,36 @@
   <body>
     <div id="wrapper">
       <div id="notify"></div>
-      <h2>Share a link</h2>
-      <p id="title"></p>
-      <form id="form-item">
-        <input type="text" name="url" placeholder="URL (required)" required>
-        <input type="text" name="description" placeholder="description (optional)">
-        <input type="checkbox" name="ttl">Delete link after 24 hours
-        <input type="hidden" name="_csrf" value="{{csrfToken}}">
-        <button id="item-add">add</button>
-      </form>
+      <div class="add-wrapper">
+        <h2>Share a link</h2>
+        <p id="title"></p>
+        <form id="form-item">
+          <input type="text" name="url" placeholder="URL (required)" required>
+          <input type="text" name="description" placeholder="description (optional)">
+          <input type="checkbox" name="ttl">Delete link after 24 hours
+          <button id="item-add">add</button>
+        </form>
+      </div>
 
-      <h2>Saved</h2>
-      <ul id="items"></ul>
-      <form id="form-network">
-        <input type="text" name="network-url" placeholder="Network URL (required)" required>
-        <input type="hidden" name="_csrf" value="{{csrfToken}}">
-        <button id="network-add">add</button>
-      </form>
+      <div class="flex">
+        <div class="feed-wrapper">
+          <h2>Feed</h2>
+          <ul id="feed"></ul>
+        </div>
+        <div class="saved-wrapper">
+          <h2>Saved</h2>
+          <ul id="saved"></ul>
+        </div>
+      </div>
 
-      <h2>Feed</h2>
-      <ul id="feed"></ul>
-
-      <h2>Connected networks</h2>
-      <ul id="network"></ul>
+      <div class="network-wrapper">
+        <h2>Connected networks</h2>
+        <form id="form-network">
+          <input type="text" name="network-url" placeholder="Network URL (required)" required>
+          <button id="network-add">add</button>
+        </form>
+        <ul id="network"></ul>
+      </div>
     </div>
     <script src="/bundle.js"></script>
   </body>

@@ -12,6 +12,7 @@ body, h1, h2, p {
 
 #notify {
   white-space: pre;
+  background
 }
 
 h2 {
@@ -31,4 +32,94 @@ form > input {
 button {
   padding: 5px;
   font-size: 1.7rem;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  font-size: 2rem;
+  margin: 20px 0;
+}
+
+h2, h3 {
+  margin: 5px 0 10px 0;
+}
+
+.add-wrapper {
+  width: 65vw;
+  min-width: 300px;
+}
+
+.flex {
+  display: flex;
+}
+
+.saved-wrapper, .feed-wrapper {
+  width: 45vw;
+  overflow: hidden;
+}
+
+.saved-wrapper *, .feed-wrapper * {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.network-wrapper {
+  background-color: rgba(1, 1, 1, 0.8);
+  color: #fff;
+  padding: 10px;
+  position: fixed;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  width: 30vw;
+  min-width: 280px;
+  max-width: 350px;
+  text-align: right;
+}
+
+li {
+  margin: 5px 0;
+  padding: 10px;
+  position: relative;
+}
+
+.feed-wrapper li {
+  background-color: rgba(215, 100, 245, 0.8);
+}
+
+.saved-wrapper li {
+  background-color: rgba(115, 200, 245, 0.8);
+}
+
+li button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 2rem;
+  padding: 0;
+  border: 0;
+}
+
+li button.saved {
+  background-color: rgba(235, 100, 255, 0.4);
+}
+
+li h3 {
+  margin-right: 20px;
+}
+
+
+@media (max-width: 600px) {
+  .flex {
+    display: block;
+  }
+
+  .saved-wrapper, .feed-wrapper {
+    width: 90vw;
+  }
 }

@@ -2305,10 +2305,14 @@ module.exports = localforage_js;
 },{}],2:[function(require,module,exports){
 'use strict'
 
+var db = require('localforage')
+
 var notify = require('./notify')
 var network = require('./network')
 
 var feed = document.querySelector('#feed')
+var saved = document.querySelector('#saved')
+var savedItems = {}
 
 exports.add = function (inputs, ws) {
   var data = {}
@@ -2358,7 +2362,44 @@ exports.add = function (inputs, ws) {
   })
 }
 
+exports.list = function () {
+  var msg = {}
+  db.getItem('saved', function (err, items) {
+    if (err) {
+      msg.error = 'Could not retrieve saved links'
+      notify(msg)
+    } else {
+      for (var k in items) {
+        savedItems[items[k].id] = k
+        var li = generateLink(items[k])
+        if (saved.childNodes.length < 1) {
+          saved.append(li)
+        } else {
+          saved.prepend(li)
+        }
+      }
+    }
+  })
+}
+
+function generateLink (item) {
+  var li = document.createElement('li')
+  var h3 = document.createElement('h3')
+  h3.textContent = item.title
+  var p = document.createElement('p')
+  p.classList.add('description')
+  p.textContent = item.description
+  var a = document.createElement('a')
+  a.href = a.textContent = item.url
+  li.appendChild(h3)
+  li.appendChild(p)
+  li.appendChild(a)
+  return li
+}
+
 exports.display = function (result) {
+  var msg = {}
+
   switch (result.type) {
     case 'item.add':
       console.log('item added ', result)
@@ -2366,18 +2407,51 @@ exports.display = function (result) {
     case 'item.feed':
       result = result.value
       result.forEach((r) => {
-        var li = document.createElement('li')
-        var h3 = document.createElement('h3')
-        h3.textContent = r.title || r.url
-        var p = document.createElement('p')
-        p.classList.add('description')
-        p.textContent = r.description
-        var a = document.createElement('a')
-        a.href = a.textContent = r.url
-        li.appendChild(h3)
-        li.appendChild(p)
-        li.appendChild(a)
-        feed.appendChild(li)
+        var item = {
+          title: r.title || r.url,
+          url: r.url,
+          description: r.description
+        }
+
+        var li = generateLink(item)
+        var btn = document.createElement('button')
+        btn.textContent = '↯'
+        btn.setAttribute('data-title', item.title)
+        btn.setAttribute('data-link', item.url)
+        btn.setAttribute('data-desc', item.description)
+        btn.onclick = function () {
+          var item = {
+            id: btn.getAttribute('data-link').replace(/[^A-Z0-9]+/gi, ''),
+            title: btn.getAttribute('data-title'),
+            url: btn.getAttribute('data-link'),
+            description: btn.getAttribute('data-desc')
+          }
+          if (savedItems[item.id]) {
+            return
+          }
+          savedItems[item.id] = item
+          db.setItem('saved', savedItems, function (err) {
+            if (err) {
+              msg.error = 'Could not save link'
+              notify(msg)
+            } else {
+              btn.classList.add('saved')
+              var li2 = generateLink(item)
+              if (saved.childNodes.length < 1) {
+                saved.append(li2)
+              } else {
+                saved.prepend(li2)
+              }
+            }
+          })
+        }
+
+        li.appendChild(btn)
+        if (feed.childNodes.length < 1) {
+          feed.append(li)
+        } else {
+          feed.prepend(li)
+        }
       })
       break
     default:
@@ -2385,7 +2459,7 @@ exports.display = function (result) {
   }
 }
 
-},{"./network":4,"./notify":5}],3:[function(require,module,exports){
+},{"./network":4,"./notify":5,"localforage":1}],3:[function(require,module,exports){
 'use strict'
 
 var item = require('./item')
@@ -2412,6 +2486,7 @@ var reconnect = function () {
 }
 
 network.list()
+item.list()
 
 formItem.onsubmit = function (ev) {
   ev.preventDefault()

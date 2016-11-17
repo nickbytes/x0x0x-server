@@ -24,6 +24,7 @@ var reconnect = function () {
 }
 
 network.list()
+item.list()
 
 formItem.onsubmit = function (ev) {
   ev.preventDefault()
