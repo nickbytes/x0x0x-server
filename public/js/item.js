@@ -64,8 +64,9 @@ exports.list = function () {
       msg.error = 'Could not retrieve saved links'
       notify(msg)
     } else {
+      console.log('loaded: ', items)
       for (var k in items) {
-        savedItems[items[k].id] = k
+        savedItems[k] = items[k]
         var li = generateLink(items[k])
         if (saved.childNodes.length < 1) {
           saved.append(li)
@@ -103,6 +104,7 @@ exports.display = function (result) {
       result = result.value
       result.forEach((r) => {
         var item = {
+          id: r.url.replace(/[^A-Z0-9]+/gi, ''),
           title: r.title || r.url,
           url: r.url,
           description: r.description
@@ -111,34 +113,27 @@ exports.display = function (result) {
         var li = generateLink(item)
         var btn = document.createElement('button')
         btn.textContent = '↯'
-        btn.setAttribute('data-title', item.title)
-        btn.setAttribute('data-link', item.url)
-        btn.setAttribute('data-desc', item.description)
         btn.onclick = function () {
-          var item = {
-            id: btn.getAttribute('data-link').replace(/[^A-Z0-9]+/gi, ''),
-            title: btn.getAttribute('data-title'),
-            url: btn.getAttribute('data-link'),
-            description: btn.getAttribute('data-desc')
-          }
-          if (savedItems[item.id]) {
-            return
-          }
-          savedItems[item.id] = item
-          db.setItem('saved', savedItems, function (err) {
-            if (err) {
-              msg.error = 'Could not save link'
-              notify(msg)
-            } else {
-              btn.classList.add('saved')
-              var li2 = generateLink(item)
-              if (saved.childNodes.length < 1) {
-                saved.append(li2)
+          if (!savedItems[item.id]) {
+            savedItems[item.id] = item
+            db.setItem('saved', savedItems, function (err) {
+              if (err) {
+                msg.error = 'Could not save link'
+                notify(msg)
               } else {
-                saved.prepend(li2)
+                btn.classList.add('saved')
+                var li2 = generateLink(item)
+                if (saved.childNodes.length < 1) {
+                  saved.append(li2)
+                } else {
+                  saved.prepend(li2)
+                }
               }
-            }
-          })
+            })
+          } else {
+            msg.error = 'You have saved this link already.'
+            notify(msg)
+          }
         }
 
         li.appendChild(btn)

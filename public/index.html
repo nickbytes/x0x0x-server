@@ -11,29 +11,30 @@
   <body>
     <div id="wrapper">
       <div id="notify"></div>
-      <div class="add-wrapper">
-        <h2>Share a link</h2>
+      <header>
+        <h2 id="tab-feed" class="active">Feed</h2>
+        <h2 id="tab-share">Share</h2>
+        <h2 id="tab-saved">Saved</h2>
+        <h2 id="tab-network">Networks</h2>
+      </header>
+      <div class="share-wrapper trio">
         <p id="title"></p>
         <form id="form-item">
           <input type="text" name="url" placeholder="URL (required)" required>
           <input type="text" name="description" placeholder="description (optional)">
-          <input type="checkbox" name="ttl">Delete link after 24 hours
           <button id="item-add">add</button>
         </form>
       </div>
 
-      <div class="flex">
-        <div class="feed-wrapper">
-          <h2>Feed</h2>
-          <ul id="feed"></ul>
-        </div>
-        <div class="saved-wrapper">
-          <h2>Saved</h2>
-          <ul id="saved"></ul>
-        </div>
+      <div class="feed-wrapper trio active">
+        <ul id="feed"></ul>
       </div>
 
-      <div class="network-wrapper">
+      <div class="saved-wrapper trio">
+        <ul id="saved"></ul>
+      </div>
+
+      <div class="network-wrapper trio">
         <h2>Connected networks</h2>
         <form id="form-network">
           <input type="text" name="network-url" placeholder="Network URL (required)" required>

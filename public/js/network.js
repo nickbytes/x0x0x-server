@@ -8,7 +8,7 @@ var network = {}
 var networkList = document.querySelector('#network')
 var networkAdd = document.querySelector('#network-add')
 
-function remove(host) {
+function remove (host) {
   delete network[host]
 
   var msg = {}
@@ -24,14 +24,14 @@ function remove(host) {
   })
 }
 
-function redraw() {
+function redraw () {
   networkList.innerHTML = ''
   for (var k in network) {
     var n = document.createElement('li')
     n.textContent = k
     n.id = 'network-' + k.replace(/^\w+/gi, '')
     var btn = document.createElement('button')
-    btn.textContent = 'x'
+    btn.textContent = '✖'
     btn.onclick = function (ev) {
       ev.preventDefault()
       remove(k)

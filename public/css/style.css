@@ -6,13 +6,26 @@ body, h1, h2, p {
   line-height: 1.5rem;
 }
 
-#wrapper {
-  padding: 20px;
-}
-
 #notify {
   white-space: pre;
-  background
+  background-color: rgba(100, 240, 100, 0.93);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 96vw;
+  padding: 1.1vw 2vw;
+  font-size: 1.5rem;
+  line-height: 1.7rem;
+  display: none;
+}
+
+#notify.active {
+  display: block;
+}
+
+#notify.error {
+  background-color: rgba(240, 10, 100, 0.93);
 }
 
 h2 {
@@ -21,49 +34,86 @@ h2 {
 
 form {
   background-color: #f0f;
+  width: 100vw;
+  text-align: center;
 }
 
-form > input {
+form > input[type="text"] {
   padding: 5px;
   font-size: 1.8rem;
   line-height: 2.1rem;
+  width: 80vw;
+  margin: 5px 15px;
+}
+
+form button {
+  display: block;
+  margin-top: 10px;
 }
 
 button {
-  padding: 5px;
+  background-color: rgba(10, 255, 225, 0.9);
+  padding: 5px 20px;
   font-size: 1.7rem;
+  width: 200px;
+  border: 5px solid #f0f000;
 }
 
 ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  width: 100vw;
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   margin: 20px 0;
+  width: 25vw;
 }
 
 h2, h3 {
   margin: 5px 0 10px 0;
 }
 
-.add-wrapper {
-  width: 65vw;
-  min-width: 300px;
+h3 {
+  font-size: 1.5rem;
+  white-space: nowrap;
+  color: #fff;
 }
 
-.flex {
+header {
   display: flex;
 }
 
-.saved-wrapper, .feed-wrapper {
-  width: 45vw;
+header h2 {
+  text-align: center;
+  background-color: rgba(55, 210, 220, 0.9);
+  padding: 10px 5px;
+  margin: 1px;
+  border-bottom: 10px solid rgba(85, 15, 240, 0.9);
+  color: rgba(85, 15, 240, 0.9);
+}
+
+header h2.active {
+  background-color: rgba(85, 15, 240, 0.9);
+  border-bottom: 10px solid rgba(55, 210, 220, 0.9);
+  color: #f0ff0f;
+}
+
+#wrapper > .trio {
+  display: none;
+}
+
+#wrapper > .trio.active {
+  display: block;
+}
+
+.saved-wrapper, .feed-wrapper, .network-wrapper {
   overflow: hidden;
 }
 
-.saved-wrapper *, .feed-wrapper * {
+.saved-wrapper *, .feed-wrapper *, .network-wrapper * {
   text-overflow: ellipsis;
   overflow: hidden;
 }
@@ -71,29 +121,30 @@ h2, h3 {
 .network-wrapper {
   background-color: rgba(1, 1, 1, 0.8);
   color: #fff;
-  padding: 10px;
-  position: fixed;
-  z-index: 2;
-  top: 0;
-  right: 0;
-  width: 30vw;
-  min-width: 280px;
-  max-width: 350px;
-  text-align: right;
+  width: 100vw;
+  margin-top: 5px;
+}
+
+.share-wrapper form {
+  margin-top: 5px;
 }
 
 li {
   margin: 5px 0;
-  padding: 10px;
+  padding: 10px 20px;
   position: relative;
 }
 
 .feed-wrapper li {
-  background-color: rgba(215, 100, 245, 0.8);
+  background-color: rgba(125, 170, 255, 0.8);
 }
 
 .saved-wrapper li {
   background-color: rgba(115, 200, 245, 0.8);
+}
+
+#network button {
+  background-color: rgba(240, 10, 10, 0.9);
 }
 
 li button {
@@ -103,6 +154,11 @@ li button {
   font-size: 2rem;
   padding: 0;
   border: 0;
+  width: 100px;
+}
+
+li button:hover {
+  background-color: rgba(115, 200, 245, 0.8);
 }
 
 li button.saved {
@@ -115,11 +171,24 @@ li h3 {
 
 
 @media (max-width: 600px) {
-  .flex {
-    display: block;
+  header h2 {
+    font-size: 1.3rem;
   }
 
   .saved-wrapper, .feed-wrapper {
-    width: 90vw;
+    width: 98vw;
+  }
+
+  li button {
+    width: 70px;
+  }
+
+  h3 {
+    width: 73vw;
+    font-size: 1.3rem;
+  }
+
+  li p, li a {
+    font-size: 1.1rem;
   }
 }
