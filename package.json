@@ -1,5 +1,5 @@
 {
-  "name": "x0x0x",
+  "name": "x0x0x-server",
   "version": "1.0.0",
   "description": "federated link sharing",
   "private": true,
@@ -8,8 +8,7 @@
     "npm": "2.x.x"
   },
   "scripts": {
-    "start": "nodemon index.js",
-    "build": "browserify public/js/main.js > public/bundle.js"
+    "start": "nodemon index.js"
   },
   "dependencies": {
     "bufferutil": "^1.2.1",
@@ -26,8 +25,6 @@
   },
   "devDependencies": {
     "standard": "^8.5.0",
-    "uglifyify": "^3.0.4",
-    "browserify": "^13.1.1",
     "nodemon": "^1.11.0"
   }
 }

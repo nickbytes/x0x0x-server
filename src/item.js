@@ -1,7 +1,7 @@
 'use strict'
 
 const dbs = require('./db')
-const db = dbs.register('items')
+const db = dbs.register('items', { ttl: true })
 const request = require('client-request')
 const cheerio = require('cheerio')
 const WebSocket = require('ws')
@@ -14,6 +14,11 @@ exports.add = function (item) {
       uri: item.value.url,
       method: 'GET',
       timeout: 1000
+    }
+
+    if (!opts.uri.match(/^http(s?):\/\/\w+/i)) {
+      console.log('Invalid url')
+      return
     }
 
     request(opts, (err, resp, body) => {
@@ -34,7 +39,7 @@ exports.add = function (item) {
         description: item.value.description,
         url: item.value.url,
         created: created
-      }, (err) => {
+      }, { ttl: 30000 }, (err) => {
         if (err) {
           console.log('Could not save link: ', err)
         }
