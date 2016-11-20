@@ -3,8 +3,6 @@
 const level = require('level')
 const ttl = require('level-ttl')
 
-// Load this up once at startup.  Changing DB locations
-// mid-process is not supported.
 const path = './db'
 
 let dbs = {}

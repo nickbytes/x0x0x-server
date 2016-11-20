@@ -2,69 +2,40 @@
 
 const dbs = require('./db')
 const db = dbs.register('items', { ttl: true })
-const request = require('client-request')
-const cheerio = require('cheerio')
-const WebSocket = require('ws')
 const concat = require('concat-stream')
 
-exports.add = function (item) {
-  function getReq (link) {
-    let title = ''
-    let opts = {
-      uri: item.value.url,
-      method: 'GET',
-      timeout: 1000
-    }
+exports.add = function (item, callback) {
+  console.log('adding ', item)
+  let link = item.value.url.split('://')[1].trim()
 
-    if (!opts.uri.match(/^http(s?):\/\/\w+/i)) {
-      console.log('Invalid url')
-      return
-    }
+  let created = new Date().getTime()
 
-    request(opts, (err, resp, body) => {
-      if (!err) {
-        let $ = cheerio.load(body.toString())
-        title = $('title').text()
-      } else {
-        console.log('Error ', err)
-        return
-      }
-
-      let linkArr = link.split('://')
-      let ws = new WebSocket('ws' + (linkArr[0] === 'https' ? 's' : '') + '://' + linkArr[1])
-      let created = new Date().getTime()
-
-      db.put('link~' + created + '~' + link, {
-        title: title || link,
-        description: item.value.description,
-        url: item.value.url,
-        created: created
-      }, { ttl: 30000 }, (err) => {
-        if (err) {
-          console.log('Could not save link: ', err)
-        }
-      })
-
-      ws.on('open', () => {
-        ws.send(JSON.stringify({
-          type: 'item.feed',
-          title: title,
-          value: [item.value]
-        }))
-      })
-    })
+  let obj = {
+    description: item.value.description,
+    url: item.value.url,
+    created: created
   }
 
-  if (Object.keys(item.hosts).length < 1) {
-    console.log('No hosts provided')
-  } else {
-    for (let k in item.hosts) {
-      getReq(k)
-    }
+  if (!obj.url || !obj.url.match(/^http(s?):\/\/\w+/i)) {
+    console.log('Invalid url')
+    return callback(new Error('Invalid url'))
   }
+
+  // currently 8 min
+  db.put('link~' + link, obj, { ttl: 500000 }, (err) => {
+    if (err) {
+      console.log('Could not save link: ', err)
+      return callback(err)
+    }
+
+    callback(null, JSON.stringify({
+      type: 'item.feed',
+      value: [item.value]
+    }))
+  })
 }
 
-exports.list = function (ws) {
+exports.list = function (callback) {
   let rs = db.createValueStream({
     gte: 'link~',
     lte: 'link~\xff',
@@ -77,11 +48,11 @@ exports.list = function (ws) {
       type: 'item.feed',
       value: items
     }
-
-    ws.send(JSON.stringify(opts))
+    callback(null, opts)
   }))
 
   rs.on('error', (err) => {
+    callback(err)
     console.log('Link retrieval error ', err)
   })
 }
