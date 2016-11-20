@@ -1,11 +1,33 @@
-body, h1, h2, p {
+body {
+  background-color: #111;
+  text-align: center;
+}
+
+body, h2, p {
   margin: 0;
   padding: 0;
-  font-family: Inconsolata;
+  font-family: 'Roboto Condensed';
 }
 
 h2 {
   font-size: 1.8rem;
   line-height: 2rem;
-  padding: 20px;
+  padding: 30px 40px;
+  color: #eee;
+}
+
+p {
+  color: #f0f;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+}
+
+a {
+  color: rgba(240, 100, 20, 0.9);
+  text-decoration: none;
+}
+
+a:hover {
+  background-color: #f0f;
+  color: #111;
 }
