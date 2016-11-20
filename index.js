@@ -11,7 +11,7 @@ const app = express()
 app.use(express.static(path.join(__dirname, '/public')))
 
 const server = http.createServer(app)
-server.listen(8080)
+server.listen(process.env.PORT || 8080)
 
 const wss = new WebSocketServer({
   server: server
