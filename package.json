@@ -4,7 +4,7 @@
   "description": "federated link sharing",
   "private": true,
   "engines": {
-    "node": "~4.x.x",
+    "node": "~5.x.x",
     "npm": "2.x.x"
   },
   "scripts": {
