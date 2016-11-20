@@ -1,8 +1,6 @@
 'use strict'
 
-const dbs = require('./db')
-const db = dbs.register('items', { ttl: true })
-const concat = require('concat-stream')
+const db = require('./db')()
 
 exports.add = function (item, callback) {
   console.log('adding ', item)
@@ -21,8 +19,7 @@ exports.add = function (item, callback) {
     return callback(new Error('Invalid url'))
   }
 
-  // currently 8 min
-  db.put('link~' + link, obj, { ttl: 500000 }, (err) => {
+  db.set(link, obj, (err) => {
     if (err) {
       console.log('Could not save link: ', err)
       return callback(err)
@@ -30,29 +27,34 @@ exports.add = function (item, callback) {
 
     callback(null, JSON.stringify({
       type: 'item.feed',
-      value: [item.value]
+      value: [obj]
     }))
   })
 }
 
 exports.list = function (callback) {
-  let rs = db.createValueStream({
-    gte: 'link~',
-    lte: 'link~\xff',
-    reverse: true,
-    limit: 50
-  })
-
-  rs.pipe(concat((items) => {
-    let opts = {
-      type: 'item.feed',
-      value: items
+  var results = {}
+  db.keys((err, keys) => {
+    if (err) {
+      console.log('Link retrieval error ', err)
+      return callback(err)
     }
-    callback(null, opts)
-  }))
 
-  rs.on('error', (err) => {
-    callback(err)
-    console.log('Link retrieval error ', err)
+    results.type = 'item.feed'
+    results.value = []
+
+    keys.forEach((k) => {
+      db.get(k, (err, r) => {
+        if (!err) {
+          results.value.push({
+            url: r.url,
+            description: r.description,
+            created: r.created
+          })
+        }
+      })
+    })
+
+    callback(null, results)
   })
 }
