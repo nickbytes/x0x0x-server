@@ -12,9 +12,11 @@
     "dev": "nodemon index.js"
   },
   "dependencies": {
+    "bufferutil": "^1.2.1",
     "express": "^4.14.0",
     "localforage": "^1.4.3",
     "node-cache": "^4.1.0",
+    "utf-8-validate": "^1.2.1",
     "ws": "^1.1.1"
   },
   "devDependencies": {
