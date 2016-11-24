@@ -4,10 +4,11 @@ const dbs = require('./db')
 const db = dbs.register('items', { ttl: true })
 const concat = require('concat-stream')
 
-const ttlms = 60000 * 60 * 48 // 48 hours
+//const ttlms = 60000 * 60 * 48 // 48 hours
+
+const ttlms = 55000
 
 exports.add = function (item, callback) {
-  console.log('adding ', item)
   let link = item.value.url.split('://')[1].trim()
 
   let created = new Date().getTime()
@@ -23,24 +24,44 @@ exports.add = function (item, callback) {
     return callback(new Error('Invalid url'))
   }
 
-  // currently 8 min
-  db.put('link~' + link, obj, { ttl: ttlms }, (err) => {
-    if (err) {
-      console.log('Could not save link: ', err)
-      return callback(err)
-    }
+  db.get('link~' + link, (err, link) => {
+    if (err || !link) {
+      let opts = [
+        {
+          type: 'put',
+          key: 'link~' + link,
+          value: obj
+        },
+        {
+          type: 'put',
+          key: 'feed~' + created + '~' + link,
+          value: obj
+        }
+      ]
+      db.batch(opts, { ttl: ttlms }, (err) => {
+        if (err) {
+          console.log('Could not save link: ', err)
+          return callback(err)
+        }
 
-    callback(null, JSON.stringify({
-      type: 'item.feed',
-      value: [item.value]
-    }))
+        callback(null, JSON.stringify({
+          type: 'item.feed',
+          value: [item.value]
+        }))
+      })
+    } else {
+      callback(null, JSON.stringify({
+        type: 'item.feed',
+        value: [link]
+      }))
+    }
   })
 }
 
 exports.list = function (callback) {
   let rs = db.createValueStream({
-    gte: 'link~',
-    lte: 'link~\xff',
+    gte: 'feed~',
+    lte: 'feed~\xff',
     reverse: true,
     limit: 80
   })
