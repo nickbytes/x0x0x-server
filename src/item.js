@@ -60,8 +60,7 @@ exports.list = function (callback) {
   let rs = db.createValueStream({
     gte: 'feed~',
     lte: 'feed~\xff',
-    reverse: true,
-    limit: 80
+    limit: 50
   })
 
   rs.pipe(concat((items) => {
