@@ -22,8 +22,8 @@ exports.add = function (item, callback) {
     return callback(new Error('Invalid url'))
   }
 
-  db.get('link~' + link, (err, link) => {
-    if (err || !link) {
+  db.get('link~' + link, (err, lk) => {
+    if (err || !lk) {
       let opts = [
         {
           type: 'put',
@@ -36,12 +36,12 @@ exports.add = function (item, callback) {
           value: obj
         }
       ]
+
       db.batch(opts, { ttl: ttlms }, (err) => {
         if (err) {
           console.log('Could not save link: ', err)
           return callback(err)
         }
-
         callback(null, JSON.stringify({
           type: 'item.feed',
           value: [item.value]
@@ -50,7 +50,7 @@ exports.add = function (item, callback) {
     } else {
       callback(null, JSON.stringify({
         type: 'item.feed',
-        value: [link]
+        value: [lk]
       }))
     }
   })
