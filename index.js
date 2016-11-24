@@ -9,7 +9,7 @@ const helmet = require('helmet')
 const item = require('./src/item')
 
 const app = express()
-//app.use(helmet())
+app.use(helmet())
 app.use(express.static(path.join(__dirname, '/public')))
 
 const server = http.createServer(app)
