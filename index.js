@@ -4,10 +4,12 @@ const WebSocketServer = require('ws').Server
 const http = require('http')
 const path = require('path')
 const express = require('express')
+const helmet = require('helmet')
 
 const item = require('./src/item')
 
 const app = express()
+app.use(helmet())
 app.use(express.static(path.join(__dirname, '/public')))
 
 const server = http.createServer(app)
@@ -18,9 +20,7 @@ const wss = new WebSocketServer({
 })
 
 function broadcast (data, ws, sendToAll) {
-  let count = 0
   wss.clients.forEach(function each (client) {
-    console.log('client ', ++count)
     if (sendToAll) {
       client.send(JSON.stringify(data))
     } else if (client === ws) {
@@ -30,7 +30,6 @@ function broadcast (data, ws, sendToAll) {
 }
 
 wss.on('connection', (ws) => {
-  console.log('connected')
   ws.on('message', (data) => {
     data = JSON.parse(data)
 
