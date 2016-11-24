@@ -4,9 +4,7 @@ const dbs = require('./db')
 const db = dbs.register('items', { ttl: true })
 const concat = require('concat-stream')
 
-//const ttlms = 60000 * 60 * 48 // 48 hours
-
-const ttlms = 55000
+const ttlms = 60000 * 60 * 48 // 48 hours
 
 exports.add = function (item, callback) {
   let link = item.value.url.split('://')[1].trim()
