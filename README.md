@@ -17,7 +17,7 @@ For a local server accessible by others, set up a tunneling service like [ngrok]
 
 For production:
 
-Same as above, but `npm start` would be replaced with however you choose to host your public-facing site.
+Same as above, but `npm start` would be replaced with however you choose to host your public-facing site on your server.
 
 ## client access
 
