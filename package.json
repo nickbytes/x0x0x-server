@@ -23,5 +23,19 @@
   "devDependencies": {
     "nodemon": "^1.11.0",
     "standard": "^8.5.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ednapiranha/x0x0x-server.git"
+  },
+  "keywords": [
+    "bookmarking",
+    "federated",
+    "internet",
+    "linking"
+    "links",
+    "sharing"
+  ],
+  "author": "Jen",
+  "license": "GPL-3.0"
 }
